@@ -1,0 +1,110 @@
+{
+	"info": {
+		"_postman_id": "29e317dc-b8ec-44ec-bdaf-6156eb5b8b13",
+		"name": "CommerceBootstrap",
+		"description": "Postman collection for automating Bootstrapping commerce engine",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. GetToken Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b205b94c-4ab2-4b9c-8d0e-876016025a78",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"postman.setGlobalVariable(\"SitecoreIdToken\", \"Bearer \" + jsonData.access_token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "password",
+							"value": "{{SitecoreIdServerPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{SitecoreIdServerUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "postman-api",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid EngineAPI postman_api",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{SitecoreIdServerHost}}/connect/token",
+					"host": [
+						"{{SitecoreIdServerHost}}"
+					],
+					"path": [
+						"connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Bootstrap Sitecore Commerce",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{OpsApiHost}}/{{OpsApi}}/Bootstrap()",
+					"host": [
+						"{{OpsApiHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"Bootstrap()"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

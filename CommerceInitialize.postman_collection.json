@@ -1,0 +1,264 @@
+{
+	"info": {
+		"_postman_id": "51468411-127d-40b6-b291-1c5ab997f404",
+		"name": "CommerceInitialize",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. GetToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5acdaf7d-867a-41cd-9a34-ed07964697e7",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"postman.setGlobalVariable(\"SitecoreIdToken\", \"Bearer \" + jsonData.access_token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "password",
+							"value": "{{SitecoreIdServerPassword}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{SitecoreIdServerUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "postman-api",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid EngineAPI postman_api",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{SitecoreIdServerHost}}/connect/token",
+					"host": [
+						"{{SitecoreIdServerHost}}"
+					],
+					"path": [
+						"connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Ensure\\Sync default content paths",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5dd5075b-2dfc-4858-b1a2-af12ae84ac6a",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"postman.setGlobalVariable(\"LongRunningTaskId\", jsonData.TaskId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"environment\": \"{{Environment}}\",\n\t\"shopName\": \"{{ShopName}}\"\n}\n"
+				},
+				"url": {
+					"raw": "{{OpsApiHost}}/{{OpsApi}}/EnsureSyncDefaultContentPaths()",
+					"host": [
+						"{{OpsApiHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"EnsureSyncDefaultContentPaths()"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.1 Wait for content paths sync",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "19f12852-a7a4-4e9f-bc85-53942d7f4067",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"if(jsonData.IsCompleted !== undefined && !jsonData.IsCompleted)\r",
+							"{\r",
+							"    setTimeout(function(){}, 5000);\r",
+							"    postman.setNextRequest('2.1 Wait for content paths sync')\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{OpsApiHost}}/{{OpsApi}}/CheckCommandStatus(taskId={{LongRunningTaskId}})",
+					"host": [
+						"{{OpsApiHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"CheckCommandStatus(taskId={{LongRunningTaskId}})"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Initialize Environment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "af484ade-a956-4321-a985-707189a42205",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"postman.setGlobalVariable(\"LongRunningTaskId\", jsonData.TaskId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"environment\": \"{{Environment}}\",\n\t\"sampleData\": true\n}"
+				},
+				"url": {
+					"raw": "{{OpsApiHost}}/{{OpsApi}}/InitializeEnvironment()",
+					"host": [
+						"{{OpsApiHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"InitializeEnvironment()"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3.1 Wait for Initialize Environment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "19f12852-a7a4-4e9f-bc85-53942d7f4067",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"if(jsonData.IsCompleted !== undefined && !jsonData.IsCompleted)\r",
+							"{\r",
+							"    setTimeout(function(){}, 5000);\r",
+							"    postman.setNextRequest('3.1 Wait for Initialize Environment')\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{SitecoreIdToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{OpsApiHost}}/{{OpsApi}}/CheckCommandStatus(taskId={{LongRunningTaskId}})",
+					"host": [
+						"{{OpsApiHost}}"
+					],
+					"path": [
+						"{{OpsApi}}",
+						"CheckCommandStatus(taskId={{LongRunningTaskId}})"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
