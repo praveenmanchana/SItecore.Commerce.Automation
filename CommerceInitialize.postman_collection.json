@@ -134,8 +134,8 @@
 							"\r",
 							"if(jsonData.IsCompleted !== undefined && !jsonData.IsCompleted)\r",
 							"{\r",
-							"    setTimeout(function(){}, 5000);\r",
-							"    postman.setNextRequest('2.1 Wait for content paths sync')\r",
+							"    setTimeout(function(){}, 10000);\r",
+							"    postman.setNextRequest(pm.info.requestName)\r",
 							"}"
 						],
 						"type": "text/javascript"
@@ -226,8 +226,8 @@
 							"\r",
 							"if(jsonData.IsCompleted !== undefined && !jsonData.IsCompleted)\r",
 							"{\r",
-							"    setTimeout(function(){}, 5000);\r",
-							"    postman.setNextRequest('3.1 Wait for Initialize Environment')\r",
+							"    setTimeout(function(){}, 30000);\r",
+							"    postman.setNextRequest(pm.info.requestName)\r",
 							"}"
 						],
 						"type": "text/javascript"
